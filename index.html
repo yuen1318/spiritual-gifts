@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,7 +38,6 @@
       --text-muted:      var(--muted);
       --toggle-bg:       var(--surface-card);
       --toggle-knob:     var(--canvas);
-      --nav-bg:          var(--canvas);
     }
 
     [data-theme="dark"] {
@@ -50,7 +49,6 @@
       --text-muted:      #6c6a64;
       --toggle-bg:       #333230;
       --toggle-knob:     var(--primary);
-      --nav-bg:          #141413;
     }
 
     /* ── Reset & Base ── */
@@ -75,102 +73,15 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* ── Header / Nav ── */
-    .nav {
-      position: relative;
-      top: 0;
-      z-index: 100;
-      background: var(--nav-bg);
-      border-bottom: 1px solid var(--card-border);
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav-spike {
-      color: var(--primary);
-      font-size: 20px;
-      line-height: 1;
-      font-weight: 400;
-    }
-
-    .nav-title {
-      font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
-      font-size: 19px;
-      font-weight: 500;
-      color: var(--text-head);
-      letter-spacing: -0.2px;
-    }
-
-    /* ── Theme Toggle (Pill) ── */
-    .theme-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .toggle-label {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      user-select: none;
-    }
-
-    .toggle-pill {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      background: var(--toggle-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: background 0.3s ease, border-color 0.3s ease;
-      flex-shrink: 0;
-    }
-
-    .toggle-pill::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      border-radius: 9999px;
-      background: var(--primary);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
-      box-shadow: 0 1px 4px rgba(20,20,19,0.15);
-    }
-
-    [data-theme="dark"] .toggle-pill::after {
-      transform: translateX(24px);
-    }
-
-    .toggle-icon {
-      font-size: 16px;
-      line-height: 1;
-    }
-
     /* ── Carousel Stage ── */
     .carousel-wrapper {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 20px 16px;
-      min-height: 0; /* allow flex child to shrink */
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      padding-top: calc(16px + env(safe-area-inset-top));
+      min-height: 0;
     }
 
     .carousel-track {
@@ -492,7 +403,7 @@
 
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
-      .gift-card, .toggle-pill::after { transition: none !important; }
+      .gift-card { transition: none !important; }
     }
 
     /* ── Desktop adjustments ── */
@@ -504,17 +415,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-brand">
-      <span class="nav-spike">🔥</span>
-      <span class="nav-title">Gifts of the Spirit</span>
-    </div>
-    <div class="theme-toggle">
-      <div class="toggle-pill" id="themeToggle" role="switch" aria-label="Toggle dark mode" tabindex="0"></div>
-    </div>
-  </nav>
 
   <!-- Carousel -->
   <div class="carousel-wrapper">
@@ -923,33 +823,6 @@
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
     });
-
-    /* ── Theme Toggle ── */
-    const html = document.documentElement;
-    const themeToggle = document.getElementById('themeToggle');
-
-    function setTheme(theme) {
-      html.setAttribute('data-theme', theme);
-      localStorage.setItem('sg-theme', theme);
-    }
-
-    themeToggle.addEventListener('click', () => {
-      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
-
-    themeToggle.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        themeToggle.click();
-      }
-    });
-
-    const saved = localStorage.getItem('sg-theme');
-    if (saved) {
-      setTheme(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    }
 
     /* ── Init ── */
     renderScene();
