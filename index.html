@@ -280,11 +280,17 @@
       padding: 3px 10px;
     }
 
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
     .card-icon {
       font-size: 34px;
       line-height: 1;
-      margin-bottom: 8px;
-      display: block;
+      flex-shrink: 0;
     }
 
     .card-name {
@@ -294,7 +300,7 @@
       letter-spacing: -0.3px;
       line-height: 1.15;
       color: var(--text-head);
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
 
     .card-divider {
@@ -702,8 +708,10 @@
 
       card.innerHTML = `
         <div class="card-accent-bar" style="background:${gift.accent}"></div>
-        <span class="card-icon">${gift.icon}</span>
-        <h2 class="card-name">${gift.name}</h2>
+        <div class="card-title-row">
+          <span class="card-icon">${gift.icon}</span>
+          <h2 class="card-name">${gift.name}</h2>
+        </div>
         <div class="card-divider" style="background:${gift.accent}"></div>
         ${gift.what ? `<p class="card-section-label">What is it?</p><p class="card-what">${gift.what}</p>` : ''}
         <p class="card-section-label">${gift.category === '1 Cor 12' ? 'NT Example' : 'Example'}</p>
