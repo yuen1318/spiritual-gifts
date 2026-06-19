@@ -198,7 +198,9 @@
       user-select: none;
       backface-visibility: hidden;
       will-change: transform, opacity;
-      transition: box-shadow 0.2s ease;
+      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.3s ease;
       overflow: hidden;
     }
 
@@ -222,35 +224,26 @@
       box-shadow: 0 8px 32px rgba(20,20,19,0.12), 0 2px 8px rgba(20,20,19,0.06);
     }
 
+    /* Suppress transitions during initial render / drag tracking */
+    .gift-card.no-transition {
+      transition: none !important;
+    }
+
+    /* Exit via CSS transitions (supports animating from an arbitrary drag position) */
     .gift-card.exiting-left {
-      animation: swipeLeft 0.38s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+      transform: translateX(-135%) rotate(-12deg) !important;
+      opacity: 0 !important;
+      transition: transform 0.4s cubic-bezier(0.55, 0, 1, 0.45),
+                  opacity 0.35s ease !important;
+      z-index: 20 !important;
     }
 
     .gift-card.exiting-right {
-      animation: swipeRight 0.38s cubic-bezier(0.55, 0, 1, 0.45) forwards;
-    }
-
-    .gift-card.entering-left {
-      animation: enterFromRight 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    .gift-card.entering-right {
-      animation: enterFromLeft 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    @keyframes swipeLeft {
-      to { transform: translateX(-120%) rotate(-8deg); opacity: 0; }
-    }
-    @keyframes swipeRight {
-      to { transform: translateX(120%) rotate(8deg); opacity: 0; }
-    }
-    @keyframes enterFromRight {
-      from { transform: translateX(100%) rotate(6deg); opacity: 0; }
-      to   { transform: translateX(0) rotate(0deg); opacity: 1; }
-    }
-    @keyframes enterFromLeft {
-      from { transform: translateX(-100%) rotate(-6deg); opacity: 0; }
-      to   { transform: translateX(0) rotate(0deg); opacity: 1; }
+      transform: translateX(135%) rotate(12deg) !important;
+      opacity: 0 !important;
+      transition: transform 0.4s cubic-bezier(0.55, 0, 1, 0.45),
+                  opacity 0.35s ease !important;
+      z-index: 20 !important;
     }
 
     /* Card accent bar */
@@ -493,11 +486,7 @@
 
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
-      .gift-card, .toggle-pill::after { transition: none; }
-      .gift-card.exiting-left,
-      .gift-card.exiting-right,
-      .gift-card.entering-left,
-      .gift-card.entering-right { animation: none; }
+      .gift-card, .toggle-pill::after { transition: none !important; }
     }
 
     /* ── Desktop adjustments ── */
@@ -531,128 +520,136 @@
   <script>
     /* ── Gift Data ── */
     const gifts = [
-      { type: 'intro', accent: "#cc785c" },
-      {
-        number: 1, name: "Word of Wisdom", icon: "🕊️", category: "1 Cor 12",
-        what: "The ability to apply God's truth wisely in real-life situations. Not just intelligence, but Spirit-led judgment.",
-        verse: '"They could not withstand the wisdom and the Spirit with which he spoke."',
-        verseRef: "Acts 6:10",
-        today: "A friend is confused about a serious moral decision. Instead of arguing, you calmly help her see God\u2019s truth with love and clarity. That is wisdom in action.",
-        source: "1 Corinthians 12:8", accent: "#cc785c"
-      },
-      {
-        number: 2, name: "Word of Knowledge", icon: "📖", category: "1 Cor 12",
-        what: "A Spirit-given insight into a person or situation that you could not know naturally.",
-        verse: "Peter knew that Ananias and Sapphira were lying about their offering.",
-        verseRef: "Acts 5:1\u201311",
-        today: "While praying for someone, you suddenly sense they are struggling with guilt. You gently bring it up, and they open their heart.",
-        source: "1 Corinthians 12:8", accent: "#5db8a6"
-      },
-      {
-        number: 3, name: "Faith", icon: "⚓", category: "1 Cor 12",
-        what: "A special confidence in God\u2019s power beyond normal human trust.",
-        verse: '"In the name of Jesus Christ, walk."',
-        verseRef: "Acts 3:6",
-        today: "Even in a difficult crisis, you remain deeply confident that God will provide. Your peace strengthens others.",
-        source: "1 Corinthians 12:9", accent: "#e8a55a"
-      },
-      {
-        number: 4, name: "Gifts of Healing", icon: "🙌", category: "1 Cor 12",
-        what: "God working through a person to bring physical, emotional, or spiritual healing.",
-        verse: "Peter healed a lame man at the temple gate.",
-        verseRef: "Acts 3:1\u201310",
-        today: "You pray for someone sick or brokenhearted. Healing may come physically, emotionally, or spiritually through God\u2019s grace.",
-        source: "1 Corinthians 12:9", accent: "#cc785c"
-      },
-      {
-        number: 5, name: "Miracles", icon: "⚡", category: "1 Cor 12",
-        what: "God doing something beyond natural explanation.",
-        verse: "Paul performed extraordinary miracles through God\u2019s power.",
-        verseRef: "Acts 19:11\u201312",
-        today: "An impossible situation suddenly changes through prayer and God\u2019s intervention.",
-        source: "1 Corinthians 12:10", accent: "#5db8a6"
-      },
-      {
-        number: 6, name: "Prophecy", icon: "🔥", category: "1 Cor 12",
-        what: "Speaking a message inspired by God to encourage, correct, or strengthen others. Not mainly about predicting the future.",
-        verse: "Agabus predicted a famine that affected the Church.",
-        verseRef: "Acts 11:27\u201328",
-        today: "During prayer, you feel led to encourage someone: \u201cGod has not forgotten you. Keep trusting Him.\u201d",
-        source: "1 Corinthians 12:10", accent: "#e8a55a"
-      },
-      {
-        number: 7, name: "Discernment of Spirits", icon: "🔍", category: "1 Cor 12",
-        what: "The ability to recognize whether something comes from God, human influence, or evil.",
-        verse: "Paul discerned that the spirit in the slave girl was not from God.",
-        verseRef: "Acts 16:16\u201318",
-        today: "You evaluate teachings or movements carefully to see if they align with Scripture and Church teaching.",
-        source: "1 Corinthians 12:10", accent: "#cc785c"
-      },
-      {
-        number: 8, name: "Tongues", icon: "🌏", category: "1 Cor 12",
-        what: "Prayer or speech inspired by the Holy Spirit in a language not naturally known by the speaker.",
-        verse: "At Pentecost, the disciples spoke in tongues and people understood them in their own languages.",
-        verseRef: "Acts 2:1\u201311",
-        today: "In prayer, some people experience praying in tongues as a form of deep spiritual worship.",
-        source: "1 Corinthians 12:10", accent: "#5db8a6"
-      },
-      {
-        number: 9, name: "Interpretation of Tongues", icon: "💬", category: "1 Cor 12",
-        what: "The ability to understand and explain messages given in tongues.",
-        verse: "Paul teaches that tongues in public worship should be interpreted so the Church is built up.",
-        verseRef: "1 Corinthians 14",
-        today: "Someone interprets a message in tongues that brings encouragement to the community.",
-        source: "1 Corinthians 12:10", accent: "#e8a55a"
-      },
-      {
-        number: 10, name: "Service", icon: "🤝", category: "Romans 12",
-        what: null,
-        verse: "Stephen served the early Church by helping widows.",
-        verseRef: "Acts 6:1\u20136",
-        today: "Helping in church ministries, organizing, serving quietly behind the scenes.",
-        source: "Romans 12:7", accent: "#cc785c"
-      },
-      {
-        number: 11, name: "Teaching", icon: "✍️", category: "Romans 12",
-        what: null,
-        verse: "Apollos taught the Scriptures accurately and powerfully.",
-        verseRef: "Acts 18:24\u201328",
-        today: "Leading Bible studies, catechism classes, or youth formation.",
-        source: "Romans 12:7", accent: "#5db8a6"
-      },
-      {
-        number: 12, name: "Encouragement", icon: "🌱", category: "Romans 12",
-        what: null,
-        verse: "Barnabas encouraged and strengthened believers. His name means \u201cSon of Encouragement.\u201d",
-        verseRef: "Acts 4:36",
-        today: "Helping someone who is discouraged to continue following Jesus.",
-        source: "Romans 12:8", accent: "#e8a55a"
-      },
-      {
-        number: 13, name: "Giving", icon: "🎁", category: "Romans 12",
-        what: null,
-        verse: "Early Christians shared their possessions generously.",
-        verseRef: "Acts 4:32\u201335",
-        today: "Supporting the poor, missions, and church needs.",
-        source: "Romans 12:8", accent: "#cc785c"
-      },
-      {
-        number: 14, name: "Leadership", icon: "🧭", category: "Romans 12",
-        what: null,
-        verse: "James helped lead the early Church during major decisions.",
-        verseRef: "Acts 15",
-        today: "Leading ministries, prayer groups, or church activities.",
-        source: "Romans 12:8", accent: "#5db8a6"
-      },
-      {
-        number: 15, name: "Mercy", icon: "💛", category: "Romans 12",
-        what: null,
-        verse: "Jesus\u2019 parable of the Good Samaritan.",
-        verseRef: "Luke 10:25\u201337",
-        today: "Helping the sick, the poor, the lonely, and those in crisis with compassion.",
-        source: "Romans 12:8", accent: "#e8a55a"
-      }
-    ];
+  { type: 'intro', accent: "#cc785c" },
+  {
+    number: 1, name: "Word of Wisdom", icon: "🕊️", category: "1 Cor 12",
+    what: "The ability to apply God's truth wisely in real-life situations. Not just intelligence, but Spirit-led judgment.",
+    verse: "When Stephen was brought before the council, he spoke with such God‑given wisdom that his opponents could not argue against him.",
+    verseRef: "Acts 6:10",
+    today: "A coworker faces an ethical dilemma. You ask one Spirit‑led question that helps her see the cost of compromise, and she chooses integrity.",
+    source: "1 Corinthians 12:8", accent: "#cc785c"
+  },
+  {
+    number: 2, name: "Word of Knowledge", icon: "📖", category: "1 Cor 12",
+    what: "A Spirit-given insight into a person or situation that you could not know naturally.",
+    verse: "The Holy Spirit revealed to Peter that Ananias and Sapphira were secretly holding back money while pretending to give everything to the church.",
+    verseRef: "Acts 5:1–11",
+    today: "While praying with a coworker, you sense she is carrying hidden guilt over a past decision. You gently mention it, and she finally opens up to God’s healing.",
+    source: "1 Corinthians 12:8", accent: "#5db8a6"
+  },
+  {
+    number: 3, name: "Faith", icon: "⚓", category: "1 Cor 12",
+    what: "A special confidence in God’s power beyond normal human trust.",
+    verse: "At the temple gate, Peter told a man lame from birth, ‘In the name of Jesus Christ, walk,’ and instantly the man’s feet and ankles became strong.",
+    verseRef: "Acts 3:6",
+    today: "Your company announces layoffs and panic spreads. You gather a few coworkers to pray with calm confidence, and the next morning a new client unexpectedly saves several jobs.",
+    source: "1 Corinthians 12:9", accent: "#e8a55a"
+  },
+  {
+    number: 4, name: "Gifts of Healing", icon: "🙌", category: "1 Cor 12",
+    what: "God working through a person to bring physical, emotional, or spiritual healing.",
+    verse: "A man who had never walked was begging at the temple gate; Peter, filled with the Holy Spirit, took him by the hand and he was completely healed, leaping and praising God.",
+    verseRef: "Acts 3:1–10",
+    today: "You pray for a coworker’s chronic migraines, simply asking Jesus for relief. Over the following weeks, the migraines stop, and her doctor is amazed at the improvement.",
+    source: "1 Corinthians 12:9", accent: "#cc785c"
+  },
+  {
+    number: 5, name: "Miracles", icon: "⚡", category: "1 Cor 12",
+    what: "God doing something beyond natural explanation.",
+    verse: "God did extraordinary miracles through Paul, so that even handkerchiefs that had touched him were taken to the sick, and they were healed and evil spirits left them.",
+    verseRef: "Acts 19:11–12",
+    today: "A coworker’s child is in a critical accident with little hope. You join a prayer group in the break room. The next morning the child unexpectedly recovers, leaving doctors baffled.",
+    source: "1 Corinthians 12:10", accent: "#5db8a6"
+  },
+  {
+    number: 6, name: "Prophecy", icon: "🔥", category: "1 Cor 12",
+    what: "Speaking a message inspired by God to encourage, correct, or strengthen others. Not mainly about predicting the future.",
+    verse: "Judas and Silas, who were prophets, traveled to Antioch and spoke many words of encouragement that strengthened the believers during a challenging time.",
+    verseRef: "Acts 15:32",
+    today: "At a prayer meeting for young professionals, you feel a strong impression for a friend worried about her career path: ‘God has not forgotten the dreams He placed in your heart. Trust His timing.’ She later says that word was the only thing that kept her from giving up.",
+    source: "1 Corinthians 12:10", accent: "#e8a55a"
+  },
+  {
+    number: 7, name: "Discernment of Spirits", icon: "🔍", category: "1 Cor 12",
+    what: "The ability to recognize whether something comes from God, human influence, or evil.",
+    verse: "A slave girl with a spirit of divination kept following Paul, shouting truths about God. Paul, discerning the evil spirit, commanded it to leave her, and she was set free.",
+    verseRef: "Acts 16:16–18",
+    today: "A coworker shares a trendy spiritual idea that sounds positive but feels off. You test it against Scripture, recognize it as false, and gently share what you’ve found.",
+    source: "1 Corinthians 12:10", accent: "#cc785c"
+  },
+  {
+    number: 8, name: "Speaking in Tongues", icon: "🗣️", category: "1 Cor 12",
+    what: "Speaking by the Spirit in a known human language to declare God’s wonders, often as a sign for unbelievers.",
+    verse: "In Cornelius’ house, the Gentiles began speaking in tongues in known languages, declaring God’s wonders. The Jewish believers with Peter were amazed.",
+    verseRef: "Acts 10:46",
+    today: "During a prayer meeting, a friend suddenly begins to speak in fluent Spanish, which she has never learned. A visiting missionary from Mexico understands every word — she is declaring God’s goodness. The whole room is moved.",
+    source: "1 Corinthians 12:10", accent: "#5db8a6"
+  },
+  {
+    number: 9, name: "Praying in Tongues", icon: "🙏", category: "1 Cor 12",
+    what: "Praying in an unintelligible language as a personal prayer from the heart that edifies the speaker and rises directly to God.",
+    verse: "Paul teaches that the one who speaks in a tongue edifies himself, speaking mysteries to God in the Spirit.",
+    verseRef: "1 Corinthians 14:4",
+    today: "During your personal prayer time, you begin to pray in a language you don’t understand, sensing a deep burden for a friend battling despair. You are personally strengthened, and later learn that at that very hour she experienced a breakthrough and returned to church.",
+    source: "1 Corinthians 12:10", accent: "#e8a55a"
+  },
+  {
+    number: 10, name: "Interpretation of Tongues", icon: "💬", category: "1 Cor 12",
+    what: "The ability to understand and explain a message spoken in tongues in a known language, so the whole church is built up.",
+    verse: "Paul instructed the Corinthian church that when someone speaks in tongues during a gathering, someone else should interpret what is said, so that everyone may be strengthened and encouraged.",
+    verseRef: "1 Corinthians 14",
+    today: "During a prayer meeting, a message in tongues is given. You receive a clear impression of a tight knot being unravelled and share, ‘God is untying the anxiety that has gripped you.’ The young woman next to you begins to cry; she had been fighting panic attacks all week.",
+    source: "1 Corinthians 12:10", accent: "#cc785c"
+  },
+  {
+    number: 11, name: "Service", icon: "🤝", category: "Romans 12",
+    what: "The Spirit-given ability to see practical needs and meet them joyfully, freeing others to do their work.",
+    verse: "As the number of disciples grew, widows were being overlooked; the apostles appointed seven men, including Stephen, to serve tables and ensure fair distribution of food, so the apostles could focus on prayer and the word.",
+    verseRef: "Acts 6:1–6",
+    today: "You join the young adults ministry and notice the welcome table is always disorganized. You arrive 20 minutes early each week to set it up and personally greet first-time visitors, making them feel instantly at home.",
+    source: "Romans 12:7", accent: "#5db8a6"
+  },
+  {
+    number: 12, name: "Teaching", icon: "✍️", category: "Romans 12",
+    what: "The ability to communicate God’s truth clearly so that others understand and grow.",
+    verse: "Apollos was a learned man with a thorough knowledge of the Scriptures; he spoke with great fervor and taught accurately about Jesus, strengthening the believers and refuting opponents in public debate.",
+    verseRef: "Acts 18:24–28",
+    today: "While leading a young professionals Bible study, you explain a difficult passage with a workplace analogy. A peer suddenly says, ‘I’ve been in church all my life but never understood this until now.’ The whole group leans in.",
+    source: "Romans 12:7", accent: "#e8a55a"
+  },
+  {
+    number: 13, name: "Encouragement", icon: "🌱", category: "Romans 12",
+    what: "The ability to draw alongside others, speaking hope and courage to strengthen their faith.",
+    verse: "Joseph, a Levite from Cyprus, was given the name Barnabas (meaning ‘Son of Encouragement’) by the apostles because he sold a field and brought the money to help the believers, and he consistently encouraged the early Church.",
+    verseRef: "Acts 4:36",
+    today: "A friend in your small group is burnt out from serving and ready to quit. You send him a voice note recalling three specific times his example challenged your faith. He texts back, ‘I was about to walk away. Thank you.’",
+    source: "Romans 12:8", accent: "#cc785c"
+  },
+  {
+    number: 14, name: "Giving", icon: "🎁", category: "Romans 12",
+    what: "The Spirit-enabled generosity that shares resources freely and cheerfully to meet the needs of others.",
+    verse: "No one in the early Church claimed that any of their possessions was their own; they shared everything, and believers would sell property and lay the money at the apostles’ feet to be distributed to anyone in need.",
+    verseRef: "Acts 4:32–35",
+    today: "You overhear a single friend in your small group mention she can’t afford the upcoming retreat. You anonymously pay for her spot through the church office. She never finds out it was you.",
+    source: "Romans 12:8", accent: "#5db8a6"
+  },
+  {
+    number: 15, name: "Leadership", icon: "🧭", category: "Romans 12",
+    what: "The ability to guide and inspire a group toward God’s purposes with wisdom and unity.",
+    verse: "At the Council of Jerusalem, after much debate about Gentile believers, James gave a wise summary and led the Church in deciding not to burden Gentiles with unnecessary rules, bringing unity and clarity.",
+    verseRef: "Acts 15",
+    today: "Your young adults outreach team can’t agree on which charity to support. After listening patiently, you suggest a plan that blends everyone’s best ideas. The team unites, and the service project impacts far more people than expected.",
+    source: "Romans 12:8", accent: "#e8a55a"
+  },
+  {
+    number: 16, name: "Mercy", icon: "💛", category: "Romans 12",
+    what: "The gift of compassionate, practical care for the suffering, reflecting God’s tender love.",
+    verse: "The Philippian jailer, after coming to faith, took Paul and Silas, washed their wounds, and brought them into his home to feed them, showing practical, tender care.",
+    verseRef: "Acts 16:33–34",
+    today: "A friend from your small group is diagnosed with a chronic illness and withdraws from everyone. You bring her favourite soup every Thursday, sit in silence when she has no words, and pray only when she asks. Months later she tells you your steady presence kept her from giving up.",
+    source: "Romans 12:8", accent: "#cc785c"
+  }
+];
 
     /* ── State ── */
     let current = 0;
@@ -731,12 +728,18 @@
       track.innerHTML = '';
 
       const ghost2Idx = (current + 2) % gifts.length;
-      track.appendChild(createCardEl(gifts[ghost2Idx], current, 'behind-2'));
+      const g2 = createCardEl(gifts[ghost2Idx], current, 'behind-2');
+      g2.classList.add('no-transition');
+      track.appendChild(g2);
 
       const ghost1Idx = (current + 1) % gifts.length;
-      track.appendChild(createCardEl(gifts[ghost1Idx], current, 'behind-1'));
+      const g1 = createCardEl(gifts[ghost1Idx], current, 'behind-1');
+      g1.classList.add('no-transition');
+      track.appendChild(g1);
 
-      track.appendChild(createCardEl(gifts[current], current, 'active'));
+      const ac = createCardEl(gifts[current], current, 'active');
+      ac.classList.add('no-transition');
+      track.appendChild(ac);
     }
 
     /* ── Navigate ── */
@@ -745,27 +748,77 @@
       isAnimating = true;
 
       const dir = direction ?? (index > current ? 'left' : 'right');
-      const activeCard = track.querySelector('.gift-card.active');
-
-      if (activeCard) {
-        activeCard.classList.add(dir === 'left' ? 'exiting-left' : 'exiting-right');
-      }
-
       current = index;
+
+      const activeCard  = track.querySelector('.gift-card.active');
+      const behind1Card = track.querySelector('.gift-card.behind-1');
+      const behind2Card = track.querySelector('.gift-card.behind-2');
+
+      if (dir === 'left') {
+        // NEXT: active flies left, behind stack rises forward
+        // Insert new behind-2 card at the back of the DOM stack (lowest z-index)
+        const newBehind2Idx = (current + 2) % gifts.length;
+        const newBehind2 = createCardEl(gifts[newBehind2Idx], current, 'behind-2');
+        newBehind2.classList.add('no-transition');
+        newBehind2.style.transform = 'scale(0.82) translateY(34px)';
+        newBehind2.style.opacity = '0';
+        track.insertBefore(newBehind2, track.firstChild);
+
+        // Enable transitions on existing cards
+        [activeCard, behind1Card, behind2Card].forEach(c => c?.classList.remove('no-transition'));
+
+        // Force reflow — establishes "from" state for all cards
+        void track.getBoundingClientRect();
+
+        // Trigger simultaneous transitions:
+        if (activeCard)  activeCard.classList.add('exiting-left');
+
+        if (behind1Card) {
+          behind1Card.classList.replace('behind-1', 'active');
+          behind1Card.style.transform = ''; // clear any drag offset
+        }
+        if (behind2Card) {
+          behind2Card.classList.replace('behind-2', 'behind-1');
+          behind2Card.style.transform = '';
+        }
+
+        // New behind-2 rises in from further back
+        newBehind2.classList.remove('no-transition');
+        newBehind2.style.transform = '';
+        newBehind2.style.opacity = '';
+
+      } else {
+        // PREV: active exits right, new prev card slides in from the left.
+        // Behind cards stay put — renderScene() rebuilds them after the transition.
+        const newActiveCard = createCardEl(gifts[current], current, 'active');
+        newActiveCard.classList.add('no-transition');
+        newActiveCard.style.transform = 'translateX(-135%) rotate(-8deg)';
+        newActiveCard.style.opacity = '0';
+        // Append last so it sits on top when z-indices are equal
+        track.appendChild(newActiveCard);
+
+        // Enable transitions on existing cards
+        [activeCard, behind1Card, behind2Card].forEach(c => c?.classList.remove('no-transition'));
+
+        // Force reflow — establishes "from" state
+        void track.getBoundingClientRect();
+
+        // Old active exits right (continues naturally from any drag position)
+        if (activeCard) activeCard.classList.add('exiting-right');
+
+        // New prev card slides in from the left
+        newActiveCard.classList.remove('no-transition');
+        newActiveCard.style.transform = '';
+        newActiveCard.style.opacity = '';
+
+        // Behind-1 and behind-2 stay in place — they remain visible as the
+        // silhouette throughout the transition and are rebuilt by renderScene().
+      }
 
       setTimeout(() => {
         renderScene();
-        const newActive = track.querySelector('.gift-card.active');
-        if (newActive) {
-          newActive.classList.add(dir === 'left' ? 'entering-left' : 'entering-right');
-          setTimeout(() => {
-            newActive.classList.remove('entering-left', 'entering-right');
-            isAnimating = false;
-          }, 400);
-        } else {
-          isAnimating = false;
-        }
-      }, 350);
+        isAnimating = false;
+      }, 560);
     }
 
     function next() { goTo((current + 1) % gifts.length, 'left'); }
@@ -778,17 +831,36 @@
       dragCurrentX = x;
       isDragging = true;
       track.classList.add('dragging');
+      // Immediately lock out transitions so tracking is instant
+      track.querySelectorAll('.gift-card').forEach(c => c.style.transition = 'none');
     }
 
     function onDragMove(x) {
       if (!isDragging) return;
       dragCurrentX = x;
       const dx = dragCurrentX - dragStartX;
-      const activeCard = track.querySelector('.gift-card.active');
+      // Only peek the behind stack when dragging in the "next" direction (left)
+      const peekProgress = dx < 0 ? Math.min(Math.abs(dx) / DRAG_THRESHOLD, 1) : 0;
+
+      const activeCard  = track.querySelector('.gift-card.active');
+      const behind1Card = track.querySelector('.gift-card.behind-1');
+      const behind2Card = track.querySelector('.gift-card.behind-2');
+
       if (activeCard) {
-        const rotate = (dx / window.innerWidth) * 12;
-        activeCard.style.transform = `translateX(${dx * 0.7}px) rotate(${rotate}deg)`;
-        activeCard.style.transition = 'none';
+        const rotate = (dx / window.innerWidth) * 18;
+        activeCard.style.transform = `translateX(${dx}px) rotate(${rotate}deg)`;
+      }
+
+      // Behind cards subtly rise as the top card is dragged away
+      if (behind1Card) {
+        const scale = 0.94 + 0.06 * peekProgress;
+        const ty    = 12  * (1 - peekProgress);
+        behind1Card.style.transform = `scale(${scale.toFixed(4)}) translateY(${ty.toFixed(2)}px)`;
+      }
+      if (behind2Card) {
+        const scale = 0.88 + 0.05 * peekProgress;
+        const ty    = 22  * (1 - peekProgress * 0.6);
+        behind2Card.style.transform = `scale(${scale.toFixed(4)}) translateY(${ty.toFixed(2)}px)`;
       }
     }
 
@@ -798,15 +870,30 @@
       track.classList.remove('dragging');
 
       const dx = dragCurrentX - dragStartX;
-      const activeCard = track.querySelector('.gift-card.active');
-      if (activeCard) {
-        activeCard.style.transform = '';
-        activeCard.style.transition = '';
-      }
+      const activeCard  = track.querySelector('.gift-card.active');
+      const behind1Card = track.querySelector('.gift-card.behind-1');
+      const behind2Card = track.querySelector('.gift-card.behind-2');
 
       if (Math.abs(dx) >= DRAG_THRESHOLD) {
+        // Clear inline transition lock so goTo() can animate from the current drag position
+        [activeCard, behind1Card, behind2Card].forEach(c => {
+          if (c) c.style.transition = '';
+        });
         if (dx < 0) next();
         else prev();
+      } else {
+        // Spring all cards back to their CSS-defined positions
+        [activeCard, behind1Card, behind2Card].forEach(c => {
+          if (!c) return;
+          c.classList.remove('no-transition');
+          c.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          c.style.transform  = '';
+        });
+        setTimeout(() => {
+          [activeCard, behind1Card, behind2Card].forEach(c => {
+            if (c) c.style.transition = '';
+          });
+        }, 550);
       }
     }
 
