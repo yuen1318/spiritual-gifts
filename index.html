@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifts of the Holy Spirit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --canvas:          #faf9f5;
+      --surface-card:    #efe9de;
+      --surface-soft:    #f5f0e8;
+      --surface-dark:    #181715;
+      --surface-dark-el: #252320;
+      --primary:         #cc785c;
+      --primary-active:  #a9583e;
+      --accent-teal:     #5db8a6;
+      --accent-amber:    #e8a55a;
+      --ink:             #141413;
+      --body:            #3d3d3a;
+      --muted:           #6c6a64;
+      --muted-soft:      #8e8b82;
+      --hairline:        #e6dfd8;
+      --on-primary:      #ffffff;
+      --on-dark:         #faf9f5;
+      --on-dark-soft:    #a09d96;
+
+      /* Themed variables */
+      --bg:              var(--canvas);
+      --card-bg:         var(--surface-card);
+      --card-border:     var(--hairline);
+      --text-head:       var(--ink);
+      --text-body:       var(--body);
+      --text-muted:      var(--muted);
+      --toggle-bg:       var(--surface-card);
+      --toggle-knob:     var(--canvas);
+      --nav-bg:          var(--canvas);
+    }
+
+    [data-theme="dark"] {
+      --bg:              var(--surface-dark);
+      --card-bg:         var(--surface-dark-el);
+      --card-border:     #333230;
+      --text-head:       var(--on-dark);
+      --text-body:       var(--on-dark-soft);
+      --text-muted:      #6c6a64;
+      --toggle-bg:       #333230;
+      --toggle-knob:     var(--primary);
+      --nav-bg:          #141413;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      height: 100%;
+      overflow: hidden; /* prevent html-level scroll */
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-body);
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* ── Header / Nav ── */
+    .nav {
+      position: relative;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--card-border);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-spike {
+      color: var(--primary);
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .nav-title {
+      font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-head);
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Theme Toggle (Pill) ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .toggle-pill {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background: var(--toggle-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle-pill::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      background: var(--primary);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+      box-shadow: 0 1px 4px rgba(20,20,19,0.15);
+    }
+
+    [data-theme="dark"] .toggle-pill::after {
+      transform: translateX(24px);
+    }
+
+    .toggle-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* ── Carousel Stage ── */
+    .carousel-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px 16px;
+      min-height: 0; /* allow flex child to shrink */
+    }
+
+    .carousel-track {
+      position: relative;
+      width: min(340px, calc(100vw - 40px));
+      height: 100%;
+      max-height: 660px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .carousel-track:active { cursor: grabbing; }
+
+    /* ── Cards ── */
+    .gift-card {
+      position: absolute;
+      inset: 0;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      user-select: none;
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+      transition: box-shadow 0.2s ease;
+      overflow: hidden;
+    }
+
+    /* Stacked "ghost" cards behind active */
+    .gift-card.behind-1 {
+      transform: scale(0.94) translateY(12px);
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .gift-card.behind-2 {
+      transform: scale(0.88) translateY(22px);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .gift-card.active {
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(20,20,19,0.12), 0 2px 8px rgba(20,20,19,0.06);
+    }
+
+    .gift-card.exiting-left {
+      animation: swipeLeft 0.38s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+    }
+
+    .gift-card.exiting-right {
+      animation: swipeRight 0.38s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+    }
+
+    .gift-card.entering-left {
+      animation: enterFromRight 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .gift-card.entering-right {
+      animation: enterFromLeft 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes swipeLeft {
+      to { transform: translateX(-120%) rotate(-8deg); opacity: 0; }
+    }
+    @keyframes swipeRight {
+      to { transform: translateX(120%) rotate(8deg); opacity: 0; }
+    }
+    @keyframes enterFromRight {
+      from { transform: translateX(100%) rotate(6deg); opacity: 0; }
+      to   { transform: translateX(0) rotate(0deg); opacity: 1; }
+    }
+    @keyframes enterFromLeft {
+      from { transform: translateX(-100%) rotate(-6deg); opacity: 0; }
+      to   { transform: translateX(0) rotate(0deg); opacity: 1; }
+    }
+
+    /* Card accent bar */
+    .card-accent-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
+    }
+
+    /* Card content */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      margin-top: 8px;
+    }
+
+    .card-number {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .card-category-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 9999px;
+      padding: 3px 10px;
+    }
+
+    .card-icon {
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .card-name {
+      font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+      line-height: 1.15;
+      color: var(--text-head);
+      margin-bottom: 10px;
+    }
+
+    .card-divider {
+      width: 32px;
+      height: 2px;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      background: var(--primary);
+      opacity: 0.5;
+    }
+
+    .card-what {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-body);
+      margin-bottom: 12px;
+    }
+
+    .card-section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .card-verse {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-style: italic;
+      line-height: 1.5;
+      color: var(--text-head);
+      margin-bottom: 3px;
+    }
+
+    .card-verse-ref {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .card-today {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-body);
+      flex: 1;
+    }
+
+    .card-footer {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-source {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .card-dots {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 9999px;
+      background: var(--card-border);
+      transition: background 0.25s, width 0.25s;
+      flex-shrink: 0;
+    }
+
+    .card-dot.active {
+      background: var(--primary);
+      width: 16px;
+    }
+
+    /* ── Nav Arrows / Dots / Swipe hint — removed, no longer used ── */
+
+    /* ── Intro Card Styles ── */
+    .card-intro-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: 8px;
+    }
+
+    .card-intro-spike {
+      font-size: 32px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .card-intro-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .card-intro-title {
+      font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
+      font-size: clamp(32px, 8vw, 44px);
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: var(--text-head);
+    }
+
+    .card-intro-verse {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.55;
+      color: var(--text-head);
+      margin-bottom: 8px;
+    }
+
+    .card-intro-ref {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .card-intro-sub {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .card-intro-hint {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--card-border);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
+      letter-spacing: 0.2px;
+    }
+
+    .card-intro-closing {
+      background: rgba(204, 120, 92, 0.07);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      margin: 4px 0 12px;
+    }
+
+    .card-intro-closing-spike {
+      font-size: 14px;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .card-intro-closing-verse {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.55;
+      color: var(--text-head);
+      margin-bottom: 4px;
+    }
+
+    .card-intro-closing-ref {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .dragging .gift-card.active {
+      box-shadow: 0 16px 48px rgba(20,20,19,0.2), 0 4px 12px rgba(20,20,19,0.1);
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .gift-card, .toggle-pill::after { transition: none; }
+      .gift-card.exiting-left,
+      .gift-card.exiting-right,
+      .gift-card.entering-left,
+      .gift-card.entering-right { animation: none; }
+    }
+
+    /* ── Desktop adjustments ── */
+    @media (min-width: 600px) {
+      .carousel-track { width: 380px; }
+      .card-name { font-size: 32px; }
+      .card-intro-title { font-size: 44px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <span class="nav-spike">✦</span>
+      <span class="nav-title">Gifts of the Spirit</span>
+    </div>
+    <div class="theme-toggle">
+      <span class="toggle-icon">☀️</span>
+      <div class="toggle-pill" id="themeToggle" role="switch" aria-label="Toggle dark mode" tabindex="0"></div>
+      <span class="toggle-icon">🌙</span>
+    </div>
+  </nav>
+
+  <!-- Carousel -->
+  <div class="carousel-wrapper">
+    <div class="carousel-track" id="carouselTrack">
+      <!-- Cards rendered by JS -->
+    </div>
+  </div>
+
+  <script>
+    /* ── Gift Data ── */
+    const gifts = [
+      { type: 'intro', accent: "#cc785c" },
+      {
+        number: 1, name: "Word of Wisdom", icon: "🕊️", category: "1 Cor 12",
+        what: "The ability to apply God's truth wisely in real-life situations. Not just intelligence, but Spirit-led judgment.",
+        verse: '"They could not withstand the wisdom and the Spirit with which he spoke."',
+        verseRef: "Acts 6:10",
+        today: "A friend is confused about a serious moral decision. Instead of arguing, you calmly help her see God\u2019s truth with love and clarity. That is wisdom in action.",
+        source: "1 Corinthians 12:8", accent: "#cc785c"
+      },
+      {
+        number: 2, name: "Word of Knowledge", icon: "📖", category: "1 Cor 12",
+        what: "A Spirit-given insight into a person or situation that you could not know naturally.",
+        verse: "Peter knew that Ananias and Sapphira were lying about their offering.",
+        verseRef: "Acts 5:1\u201311",
+        today: "While praying for someone, you suddenly sense they are struggling with guilt. You gently bring it up, and they open their heart.",
+        source: "1 Corinthians 12:8", accent: "#5db8a6"
+      },
+      {
+        number: 3, name: "Faith", icon: "⚓", category: "1 Cor 12",
+        what: "A special confidence in God\u2019s power beyond normal human trust.",
+        verse: '"In the name of Jesus Christ, walk."',
+        verseRef: "Acts 3:6",
+        today: "Even in a difficult crisis, you remain deeply confident that God will provide. Your peace strengthens others.",
+        source: "1 Corinthians 12:9", accent: "#e8a55a"
+      },
+      {
+        number: 4, name: "Gifts of Healing", icon: "🙌", category: "1 Cor 12",
+        what: "God working through a person to bring physical, emotional, or spiritual healing.",
+        verse: "Peter healed a lame man at the temple gate.",
+        verseRef: "Acts 3:1\u201310",
+        today: "You pray for someone sick or brokenhearted. Healing may come physically, emotionally, or spiritually through God\u2019s grace.",
+        source: "1 Corinthians 12:9", accent: "#cc785c"
+      },
+      {
+        number: 5, name: "Miracles", icon: "⚡", category: "1 Cor 12",
+        what: "God doing something beyond natural explanation.",
+        verse: "Paul performed extraordinary miracles through God\u2019s power.",
+        verseRef: "Acts 19:11\u201312",
+        today: "An impossible situation suddenly changes through prayer and God\u2019s intervention.",
+        source: "1 Corinthians 12:10", accent: "#5db8a6"
+      },
+      {
+        number: 6, name: "Prophecy", icon: "🔥", category: "1 Cor 12",
+        what: "Speaking a message inspired by God to encourage, correct, or strengthen others. Not mainly about predicting the future.",
+        verse: "Agabus predicted a famine that affected the Church.",
+        verseRef: "Acts 11:27\u201328",
+        today: "During prayer, you feel led to encourage someone: \u201cGod has not forgotten you. Keep trusting Him.\u201d",
+        source: "1 Corinthians 12:10", accent: "#e8a55a"
+      },
+      {
+        number: 7, name: "Discernment of Spirits", icon: "🔍", category: "1 Cor 12",
+        what: "The ability to recognize whether something comes from God, human influence, or evil.",
+        verse: "Paul discerned that the spirit in the slave girl was not from God.",
+        verseRef: "Acts 16:16\u201318",
+        today: "You evaluate teachings or movements carefully to see if they align with Scripture and Church teaching.",
+        source: "1 Corinthians 12:10", accent: "#cc785c"
+      },
+      {
+        number: 8, name: "Tongues", icon: "🌏", category: "1 Cor 12",
+        what: "Prayer or speech inspired by the Holy Spirit in a language not naturally known by the speaker.",
+        verse: "At Pentecost, the disciples spoke in tongues and people understood them in their own languages.",
+        verseRef: "Acts 2:1\u201311",
+        today: "In prayer, some people experience praying in tongues as a form of deep spiritual worship.",
+        source: "1 Corinthians 12:10", accent: "#5db8a6"
+      },
+      {
+        number: 9, name: "Interpretation of Tongues", icon: "💬", category: "1 Cor 12",
+        what: "The ability to understand and explain messages given in tongues.",
+        verse: "Paul teaches that tongues in public worship should be interpreted so the Church is built up.",
+        verseRef: "1 Corinthians 14",
+        today: "Someone interprets a message in tongues that brings encouragement to the community.",
+        source: "1 Corinthians 12:10", accent: "#e8a55a"
+      },
+      {
+        number: 10, name: "Service", icon: "🤝", category: "Romans 12",
+        what: null,
+        verse: "Stephen served the early Church by helping widows.",
+        verseRef: "Acts 6:1\u20136",
+        today: "Helping in church ministries, organizing, serving quietly behind the scenes.",
+        source: "Romans 12:7", accent: "#cc785c"
+      },
+      {
+        number: 11, name: "Teaching", icon: "✍️", category: "Romans 12",
+        what: null,
+        verse: "Apollos taught the Scriptures accurately and powerfully.",
+        verseRef: "Acts 18:24\u201328",
+        today: "Leading Bible studies, catechism classes, or youth formation.",
+        source: "Romans 12:7", accent: "#5db8a6"
+      },
+      {
+        number: 12, name: "Encouragement", icon: "🌱", category: "Romans 12",
+        what: null,
+        verse: "Barnabas encouraged and strengthened believers. His name means \u201cSon of Encouragement.\u201d",
+        verseRef: "Acts 4:36",
+        today: "Helping someone who is discouraged to continue following Jesus.",
+        source: "Romans 12:8", accent: "#e8a55a"
+      },
+      {
+        number: 13, name: "Giving", icon: "🎁", category: "Romans 12",
+        what: null,
+        verse: "Early Christians shared their possessions generously.",
+        verseRef: "Acts 4:32\u201335",
+        today: "Supporting the poor, missions, and church needs.",
+        source: "Romans 12:8", accent: "#cc785c"
+      },
+      {
+        number: 14, name: "Leadership", icon: "🧭", category: "Romans 12",
+        what: null,
+        verse: "James helped lead the early Church during major decisions.",
+        verseRef: "Acts 15",
+        today: "Leading ministries, prayer groups, or church activities.",
+        source: "Romans 12:8", accent: "#5db8a6"
+      },
+      {
+        number: 15, name: "Mercy", icon: "💛", category: "Romans 12",
+        what: null,
+        verse: "Jesus\u2019 parable of the Good Samaritan.",
+        verseRef: "Luke 10:25\u201337",
+        today: "Helping the sick, the poor, the lonely, and those in crisis with compassion.",
+        source: "Romans 12:8", accent: "#e8a55a"
+      }
+    ];
+
+    /* ── State ── */
+    let current = 0;
+    let isAnimating = false;
+    let dragStartX = 0;
+    let dragCurrentX = 0;
+    let isDragging = false;
+    const DRAG_THRESHOLD = 60;
+
+    /* ── DOM Refs ── */
+    const track = document.getElementById('carouselTrack');
+
+    /* ── Render card HTML ── */
+    function dotsHTML(activeIdx) {
+      return `<div class="card-dots">${gifts.map((_,i) =>
+        `<div class="card-dot${i === activeIdx ? ' active' : ''}"></div>`
+      ).join('')}</div>`;
+    }
+
+    function createCardEl(gift, activeIdx, className = '') {
+      const card = document.createElement('div');
+      card.className = 'gift-card ' + className;
+
+      if (gift.type === 'intro') {
+        card.innerHTML = `
+          <div class="card-accent-bar" style="background:${gift.accent}"></div>
+          <div class="card-intro-inner">
+            <span class="card-intro-spike">✦</span>
+            <p class="card-intro-eyebrow">1 Corinthians 12 · Romans 12</p>
+            <h2 class="card-intro-title">Gifts of the<br/>Holy Spirit</h2>
+            <div class="card-divider" style="background:${gift.accent};margin:20px 0;width:48px;"></div>
+            <p class="card-intro-verse">"There are different kinds of spiritual gifts but the same Spirit gives them."</p>
+            <p class="card-intro-ref">— 1 Corinthians 12:4–7</p>
+            <p class="card-intro-sub">These gifts are not for personal glory but for serving others.</p>
+            <div class="card-intro-closing">
+              <span class="card-intro-closing-spike">✦</span>
+              <p class="card-intro-closing-verse">"But one and the same Spirit produces all of these, distributing them individually to each person as he wishes."</p>
+              <p class="card-intro-closing-ref">— 1 Corinthians 12:11</p>
+            </div>
+            <div class="card-intro-hint">
+              <span>Swipe to explore all 15 gifts →</span>
+            </div>
+            <div class="card-footer" style="margin-top:12px;">
+              <span class="card-source">Gifts of the Holy Spirit</span>
+              ${dotsHTML(activeIdx)}
+            </div>
+          </div>
+        `;
+        return card;
+      }
+
+      const categoryColor = gift.category === '1 Cor 12'
+        ? 'color:#cc785c;background:rgba(204,120,92,0.1);'
+        : 'color:#5db8a6;background:rgba(93,184,166,0.1);';
+
+      card.innerHTML = `
+        <div class="card-accent-bar" style="background:${gift.accent}"></div>
+        <div class="card-header">
+          <span class="card-number">Gift ${String(gift.number).padStart(2,'0')} <span style="color:var(--text-muted);font-weight:400">/ 15</span></span>
+          <span class="card-category-badge" style="${categoryColor}">${gift.category}</span>
+        </div>
+        <span class="card-icon">${gift.icon}</span>
+        <h2 class="card-name">${gift.name}</h2>
+        <div class="card-divider" style="background:${gift.accent}"></div>
+        ${gift.what ? `<p class="card-section-label">What is it?</p><p class="card-what">${gift.what}</p>` : ''}
+        <p class="card-section-label">${gift.category === '1 Cor 12' ? 'NT Example' : 'Example'}</p>
+        <p class="card-verse">${gift.verse}</p>
+        <p class="card-verse-ref">— ${gift.verseRef}</p>
+        <p class="card-section-label">Today</p>
+        <p class="card-today">${gift.today}</p>
+        <div class="card-footer">
+          <span class="card-source">${gift.source}</span>
+          ${dotsHTML(activeIdx)}
+        </div>
+      `;
+      return card;
+    }
+
+    /* ── Render scene: active card + 2 ghost cards behind ── */
+    function renderScene() {
+      track.innerHTML = '';
+
+      const ghost2Idx = (current + 2) % gifts.length;
+      track.appendChild(createCardEl(gifts[ghost2Idx], current, 'behind-2'));
+
+      const ghost1Idx = (current + 1) % gifts.length;
+      track.appendChild(createCardEl(gifts[ghost1Idx], current, 'behind-1'));
+
+      track.appendChild(createCardEl(gifts[current], current, 'active'));
+    }
+
+    /* ── Navigate ── */
+    function goTo(index, direction = null) {
+      if (isAnimating || index === current) return;
+      isAnimating = true;
+
+      const dir = direction ?? (index > current ? 'left' : 'right');
+      const activeCard = track.querySelector('.gift-card.active');
+
+      if (activeCard) {
+        activeCard.classList.add(dir === 'left' ? 'exiting-left' : 'exiting-right');
+      }
+
+      current = index;
+
+      setTimeout(() => {
+        renderScene();
+        const newActive = track.querySelector('.gift-card.active');
+        if (newActive) {
+          newActive.classList.add(dir === 'left' ? 'entering-left' : 'entering-right');
+          setTimeout(() => {
+            newActive.classList.remove('entering-left', 'entering-right');
+            isAnimating = false;
+          }, 400);
+        } else {
+          isAnimating = false;
+        }
+      }, 350);
+    }
+
+    function next() { goTo((current + 1) % gifts.length, 'left'); }
+    function prev() { goTo((current - 1 + gifts.length) % gifts.length, 'right'); }
+
+    /* ── Drag / Swipe ── */
+    function onDragStart(x) {
+      if (isAnimating) return;
+      dragStartX = x;
+      dragCurrentX = x;
+      isDragging = true;
+      track.classList.add('dragging');
+    }
+
+    function onDragMove(x) {
+      if (!isDragging) return;
+      dragCurrentX = x;
+      const dx = dragCurrentX - dragStartX;
+      const activeCard = track.querySelector('.gift-card.active');
+      if (activeCard) {
+        const rotate = (dx / window.innerWidth) * 12;
+        activeCard.style.transform = `translateX(${dx * 0.7}px) rotate(${rotate}deg)`;
+        activeCard.style.transition = 'none';
+      }
+    }
+
+    function onDragEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      track.classList.remove('dragging');
+
+      const dx = dragCurrentX - dragStartX;
+      const activeCard = track.querySelector('.gift-card.active');
+      if (activeCard) {
+        activeCard.style.transform = '';
+        activeCard.style.transition = '';
+      }
+
+      if (Math.abs(dx) >= DRAG_THRESHOLD) {
+        if (dx < 0) next();
+        else prev();
+      }
+    }
+
+    /* ── Pointer Events ── */
+    track.addEventListener('pointerdown', e => {
+      if (isAnimating) return;
+      e.preventDefault();
+      track.setPointerCapture(e.pointerId);
+      onDragStart(e.clientX);
+    });
+
+    track.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      e.preventDefault();
+      onDragMove(e.clientX);
+    });
+
+    track.addEventListener('pointerup', () => onDragEnd());
+    track.addEventListener('pointercancel', () => onDragEnd());
+
+    /* ── Keyboard navigation ── */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+    });
+
+    /* ── Theme Toggle ── */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+
+    function setTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('sg-theme', theme);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    themeToggle.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        themeToggle.click();
+      }
+    });
+
+    const saved = localStorage.getItem('sg-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    /* ── Init ── */
+    renderScene();
+  </script>
+</body>
+</html>
