@@ -702,10 +702,6 @@
 
       card.innerHTML = `
         <div class="card-accent-bar" style="background:${gift.accent}"></div>
-        <div class="card-header">
-          <span class="card-number">Gift ${String(gift.number).padStart(2,'0')} <span style="color:var(--text-muted);font-weight:400">/ 15</span></span>
-          <span class="card-category-badge" style="${categoryColor}">${gift.category}</span>
-        </div>
         <span class="card-icon">${gift.icon}</span>
         <h2 class="card-name">${gift.name}</h2>
         <div class="card-divider" style="background:${gift.accent}"></div>
