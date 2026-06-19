@@ -103,6 +103,7 @@
       border: 1.5px solid var(--card-border);
       border-radius: 20px;
       padding: 24px 24px;
+      font-size: 16px; /* JS will scale this down to fit all content */
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -194,90 +195,84 @@
     .card-title-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 0.75em;
+      margin-bottom: 0.5em;
     }
 
     .card-icon {
-      font-size: 32px;
+      font-size: 2em;
       line-height: 1;
       flex-shrink: 0;
     }
 
     .card-name {
       font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
-      font-size: 28px;
+      font-size: 1.75em;
       font-weight: 400;
       letter-spacing: -0.3px;
       line-height: 1.15;
       color: var(--text-head);
-      margin-bottom: 0;
     }
 
     .card-divider {
       width: 28px;
       height: 2px;
       border-radius: 2px;
-      margin-bottom: 10px;
+      margin-bottom: 0.6em;
       background: var(--primary);
       opacity: 0.5;
     }
 
     .card-what {
-      font-size: 15px;
+      font-size: 0.94em;
       line-height: 1.5;
       color: var(--text-body);
-      margin-bottom: 10px;
+      margin-bottom: 0.6em;
     }
 
     .card-section-label {
-      font-size: 11px;
+      font-size: 0.65em;
       font-weight: 600;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 3px;
+      margin-bottom: 0.25em;
     }
 
     .card-verse {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
+      font-size: 1em;
       font-style: italic;
       line-height: 1.45;
       color: var(--text-head);
-      margin-bottom: 3px;
+      margin-bottom: 0.2em;
     }
 
     .card-verse-ref {
-      font-size: 13px;
+      font-size: 0.81em;
       font-weight: 500;
       color: var(--primary);
-      margin-bottom: 10px;
+      margin-bottom: 0.6em;
     }
 
     .card-today {
-      font-size: 15px;
+      font-size: 0.94em;
       line-height: 1.5;
       color: var(--text-body);
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-      mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     }
 
     .card-footer {
       margin-top: auto;
-      padding-top: 8px;
+      padding-top: 0.5em;
       border-top: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 0.375em;
       flex-shrink: 0;
     }
 
     .card-source {
-      font-size: 13px;
+      font-size: 0.81em;
       font-weight: 500;
       letter-spacing: 0.5px;
       color: var(--text-muted);
@@ -414,7 +409,6 @@
     /* ── Desktop adjustments ── */
     @media (min-width: 600px) {
       .carousel-track { width: 380px; }
-      .card-name { font-size: 32px; }
       .card-intro-title { font-size: 46px; }
     }
   </style>
@@ -632,6 +626,24 @@
       return card;
     }
 
+    /* ── Fit card content by scaling font-size until nothing overflows ── */
+    function fitCard(card) {
+      if (!card.querySelector('.card-footer')) return;
+      card.style.fontSize = '16px';
+      if (card.scrollHeight <= card.clientHeight) return;
+      // Calculate scale ratio (content must fit inside padded area)
+      const pad = 48; // 24px top + 24px bottom
+      const ratio = (card.clientHeight - pad) / (card.scrollHeight - pad);
+      let base = Math.floor(16 * ratio * 2) / 2; // round down to nearest 0.5px
+      base = Math.max(base, 9);
+      card.style.fontSize = base + 'px';
+      // One safety nudge in case rounding left a sliver of overflow
+      while (card.scrollHeight > card.clientHeight && base > 9) {
+        base -= 0.5;
+        card.style.fontSize = base + 'px';
+      }
+    }
+
     /* ── Render scene: active card + 2 ghost cards behind ── */
     function renderScene() {
       track.innerHTML = '';
@@ -640,15 +652,18 @@
       const g2 = createCardEl(gifts[ghost2Idx], current, 'behind-2');
       g2.classList.add('no-transition');
       track.appendChild(g2);
+      fitCard(g2);
 
       const ghost1Idx = (current + 1) % gifts.length;
       const g1 = createCardEl(gifts[ghost1Idx], current, 'behind-1');
       g1.classList.add('no-transition');
       track.appendChild(g1);
+      fitCard(g1);
 
       const ac = createCardEl(gifts[current], current, 'active');
       ac.classList.add('no-transition');
       track.appendChild(ac);
+      fitCard(ac);
     }
 
     /* ── Navigate ── */
@@ -672,6 +687,7 @@
         newBehind2.style.transform = 'scale(0.82) translateY(34px)';
         newBehind2.style.opacity = '0';
         track.insertBefore(newBehind2, track.firstChild);
+        fitCard(newBehind2);
 
         // Enable transitions on existing cards
         [activeCard, behind1Card, behind2Card].forEach(c => c?.classList.remove('no-transition'));
@@ -705,6 +721,7 @@
         newActiveCard.style.opacity = '0';
         // Append last so it sits on top when z-indices are equal
         track.appendChild(newActiveCard);
+        fitCard(newActiveCard);
 
         // Enable transitions on existing cards
         [activeCard, behind1Card, behind2Card].forEach(c => c?.classList.remove('no-transition'));
