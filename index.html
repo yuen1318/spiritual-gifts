@@ -102,7 +102,7 @@
       background: var(--card-bg);
       border: 1.5px solid var(--card-border);
       border-radius: 20px;
-      padding: 32px 28px;
+      padding: 20px 20px;
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -194,19 +194,19 @@
     .card-title-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 6px;
     }
 
     .card-icon {
-      font-size: 34px;
+      font-size: 28px;
       line-height: 1;
       flex-shrink: 0;
     }
 
     .card-name {
       font-family: 'Cormorant Garamond', 'Tiempos Headline', Georgia, serif;
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 400;
       letter-spacing: -0.3px;
       line-height: 1.15;
@@ -215,60 +215,63 @@
     }
 
     .card-divider {
-      width: 32px;
+      width: 28px;
       height: 2px;
       border-radius: 2px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       background: var(--primary);
       opacity: 0.5;
     }
 
     .card-what {
-      font-size: 15px;
-      line-height: 1.55;
+      font-size: 13px;
+      line-height: 1.5;
       color: var(--text-body);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .card-section-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .card-verse {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
+      font-size: 14px;
       font-style: italic;
-      line-height: 1.5;
+      line-height: 1.45;
       color: var(--text-head);
       margin-bottom: 3px;
     }
 
     .card-verse-ref {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--primary);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .card-today {
-      font-size: 15px;
-      line-height: 1.55;
+      font-size: 13px;
+      line-height: 1.5;
       color: var(--text-body);
       flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .card-footer {
       margin-top: auto;
-      padding-top: 14px;
+      padding-top: 8px;
       border-top: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .card-source {
@@ -409,7 +412,7 @@
     /* ── Desktop adjustments ── */
     @media (min-width: 600px) {
       .carousel-track { width: 380px; }
-      .card-name { font-size: 34px; }
+      .card-name { font-size: 28px; }
       .card-intro-title { font-size: 46px; }
     }
   </style>
